@@ -1,1 +1,33 @@
+name: Build and Analyze C project with SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del codice
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installare gcc e bear
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential bear
+
+      # 3. Compilare con bear per generare compile_commands.json
+      - name: Build project with bear
+        run: bear -- make
+
+      # 4. Analisi con SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
